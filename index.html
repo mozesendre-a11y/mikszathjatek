@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szent Péter Esernyője - KvízJáték</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,400&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f1c15;
+            --emerald: #133a27;
+            --emerald-light: #1e5238;
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7);
+            --parchment: #f7f3e8;
+            --text-dark: #2a241e;
+            --burgundy: #722f37;
+            --crimson: #a83232;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(19, 58, 39, 0.8) 0%, rgba(15, 28, 21, 0.95) 100%),
+                radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-family: 'Georgia', serif;
+        }
+
+        .art-nouveau-card {
+            background: var(--parchment);
+            border: 4px solid var(--gold);
+            border-radius: 20px;
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.3), inset 0 0 20px rgba(114, 47, 55, 0.15);
+            max-width: 680px;
+            width: 100%;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .art-nouveau-card::before, .art-nouveau-card::after {
+            content: '❧';
+            position: absolute;
+            font-size: 2.5rem;
+            color: var(--gold);
+            opacity: 0.8;
+        }
+        .art-nouveau-card::before { top: 10px; left: 15px; transform: rotate(-45deg); }
+        .art-nouveau-card::after { top: 10px; right: 15px; transform: rotate(45deg); }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            text-align: center;
+            color: var(--burgundy);
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .title-decor {
+            text-align: center;
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--emerald);
+            color: var(--gold-light);
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--gold);
+            margin: 15px 0;
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border: 1px solid var(--gold);
+        }
+        .badge-kezdo { background: #2e6f40; color: white; }
+        .badge-halado { background: #b87333; color: white; }
+        .badge-mester { background: var(--burgundy); color: white; }
+
+        .question-box {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin: 20px 0;
+            color: #1a1a1a;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid #c8b99d;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-family: 'Georgia', serif;
+            color: var(--text-dark);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--gold);
+            background: #fdfbf7;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #e6f4ea !important;
+            border-color: #2e7d32 !important;
+            color: #1b5e20 !important;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background: #fce8e6 !important;
+            border-color: #c62828 !important;
+            color: #b71c1c !important;
+        }
+
+        .btn-gold {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold-gradient);
+            color: var(--burgundy);
+            border: 2px solid var(--burgundy);
+            border-radius: 12px;
+            font-family: 'Cinzel', serif;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(114, 47, 55, 0.3);
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .feedback-box.show { display: block; }
+        .fb-success { background: #e6f4ea; border: 1px solid #2e7d32; color: #1b5e20; }
+        .fb-danger { background: #fce8e6; border: 1px solid #c62828; color: #b71c1c; }
+        .fb-info { background: #e8f0fe; border: 1px solid #1a73e8; color: #155724; }
+
+        .input-style {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid var(--gold);
+            background: #fff;
+            font-size: 1rem;
+            margin-top: 10px;
+            font-family: 'Georgia', serif;
+            outline: none;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #d4af37;
+        }
+
+        .text-link {
+            background: none;
+            border: none;
+            color: var(--burgundy);
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: underline;
+            margin-top: 10px;
+            font-family: 'Georgia', serif;
+        }
+
+        .rules-box {
+            background: #fff;
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 0.88rem;
+            color: #4a3e31;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div class="art-nouveau-card">
+    <!-- START KEPERNYŐ -->
+    <div id="start-screen">
+        <h1>Szent Péter Esernyője</h1>
+        <div class="title-decor">🎕 Interaktív KvízJáték 🎕</div>
+        
+        <div class="rules-box">
+            <strong>📜 Játékszabályok:</strong>
+            <ul style="margin-left: 20px; margin-top: 5px; line-height: 1.4;">
+                <li>Egy játékkör <strong>pontosan 10 kérdésből</strong> áll.</li>
+                <li><strong>Pontozás:</strong> Kezdő = 3 pont | Haladó = 5 pont | Mester = 10 pont</li>
+                <li>3 egymást követő helyes válasz = szintlépés ⬆️</li>
+                <li>2 egymást követő hibás válasz = visszalépés ⬇️</li>
+            </ul>
+        </div>
+        
+        <div style="margin: 15px 0;">
+            <label style="font-weight: bold; color: var(--burgundy);">A tisztelt Olvasó / Játékos neve:</label>
+            <input type="text" id="player-name" class="input-style" placeholder="Írd be a neved..." maxlength="20">
+        </div>
+
+        <button class="btn-gold" onclick="startGame()">❧ KvízJáték Indítása (10 Kérdés) ☙</button>
+        
+        <div style="text-align: center; margin-top: 15px;">
+            <button class="text-link" onclick="showLeaderboard()">🏆 Ranglista megtekintése</button>
+        </div>
+    </div>
+
+    <!-- KVÍZ KEPERNYŐ -->
+    <div id="quiz-screen" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="player-tag" style="font-weight: bold; color: var(--burgundy);"></span>
+            <button class="text-link" onclick="showLeaderboard()">🏆 Ranglista</button>
+        </div>
+        
+        <div class="stats-bar">
+            <div>Kérdés: <strong id="question-count" style="color: var(--gold-light);">1 / 10</strong></div>
+            <div>Szint: <span id="level-badge" class="badge badge-kezdo">Kezdő</span></div>
+            <div>Pont: <span id="score" style="color: var(--gold-light); font-weight: bold;">0</span></div>
+        </div>
+
+        <div id="question" class="question-box"></div>
+        <div id="options" class="options-grid"></div>
+        <div id="feedback" class="feedback-box"></div>
+        <button id="next-btn" class="btn-gold" style="display:none;" onclick="nextQuestion()">Következő kérdés ➔</button>
+    </div>
+
+    <!-- EREDMÉNY KEPERNYŐ -->
+    <div id="result-screen" style="display: none; text-align: center;">
+        <h2>❧ Gratulálunk! ☙</h2>
+        <p style="margin-top: 10px; color: #5a4a3a;">Megválaszoltad a 10 kérdést!</p>
+        
+        <div style="background: #fff; padding: 20px; border-radius: 12px; border: 2px solid var(--gold); margin: 20px 0;">
+            <p style="font-size: 1.1rem; color: var(--burgundy);">Elért végső pontszám:</p>
+            <h1 id="final-score" style="font-size: 3.2rem; margin: 10px 0; color: var(--burgundy);">0</h1>
+            <p style="color: var(--emerald-light); font-weight: bold;" id="final-stats-text"></p>
+        </div>
+
+        <button class="btn-gold" onclick="startGame()">🔄 Új KvízJáték Indítása (10 Kérdés)</button>
+        <button class="text-link" onclick="showLeaderboard()" style="margin-top: 15px;">🏆 Ranglista megtekintése</button>
+    </div>
+
+    <!-- RANGLISTA KEPERNYŐ -->
+    <div id="leaderboard-screen" style="display: none;">
+        <h2>🏆 Dicsőségtábla</h2>
+        <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 15px;">Legjobb 10 kérdéses eredmények:</p>
+
+        <table class="leaderboard-table">
+            <thead>
+                <tr style="color: var(--burgundy);">
+                    <th>#</th>
+                    <th>Név</th>
+                    <th>Záró szint</th>
+                    <th>Pont</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+        </table>
+
+        <button class="btn-gold" onclick="backToMenu()">Vissza a Főmenübe</button>
+        <div style="text-align: center; margin-top: 10px;">
+            <button class="text-link" style="color: var(--crimson);" onclick="clearLeaderboard()">Ranglista törlése</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questionBank = {
+        kezdo: [
+            { q: "Milyen falu szülötte/helyszíne a kis Veronka árvaságának kezdete?", options: ["Haláp", "Glogova", "Bábaszék", "Lehota"], answer: 0 },
+            { q: "Hány éves Veronka, amikor az édesanyja meghal?", options: ["1 éves", "2 éves", "5 éves", "10 éves"], answer: 1 },
+            { q: "Milyen állat marad még Veronka után az édesanyja halálakor?", options: ["Kecske", "Kutya", "Liba", "Macska"], answer: 2 },
+            { q: "Kije Veronkának Bélyi János?", options: ["Nagybátyja", "Bátyja", "Unokatestvére", "Édesapja"], answer: 1 },
+            { q: "Milyen tisztséget tölt be Bélyi János Glogován?", options: ["Jegyző", "Bíró", "Plébános / káplán", "Tanító"], answer: 2 },
+            { q: "Miben viszik a kis Veronkát Glogovára?", options: ["Kosárban", "Szekérderékban", "Kofferben", "Bölcsőben"], answer: 0 },
+            { q: "Mi volt a neve a tetszhalott gazdának, aki felült a koporsóban?", options: ["Gongoly Mihály", "Srankó János", "Billeghi Máté", "Koczka Ferenc"], answer: 1 },
+            { q: "Milyen színű a híres esernyő?", options: ["Kék", "Zöld", "Piros", "Fekete"], answer: 2 },
+            { q: "Kinek a tulajdonának vélik a falusiak a csodás esernyőt?", options: ["Szent Péter", "Szent Antal", "Szent István", "Szent Pál"], answer: 0 },
+            { q: "Milyen hajú volt Gregorics Pál, ami miatt nem kedvelték?", options: ["Fekete", "Szőke", "Vörös", "Ősz"], answer: 2 },
+            { q: "Mi volt Wibra Anna eredeti foglalkozása?", options: ["Szakácsnő", "Mosónő", "Varrónő", "Szobaleány"], answer: 0 },
+            { q: "Ki Gregorics Pál és Wibra Anna fia?", options: ["Sztolarik", "Wibra Gyuri", "Bélyi János", "Matykó"], answer: 1 },
+            { q: "Hová küldi tanulni Gregorics a fiát, hogy megvédje a mérgezéstől?", options: ["Besztercebányára", "Pozsonyba", "Szegedre", "Pestre"], answer: 2 },
+            { q: "Mi a foglalkozása a felnőtt Wibra Gyurinak?", options: ["Orvos", "Ügyvéd", "Mérnök", "Kereskedő"], answer: 1 },
+            { q: "Hová rejtette a nehéz üstöt Gregorics Pál?", options: ["A pince mélyére", "Egy kerti lakba befalazva", "A falu kútjába", "A templom tornyába"], answer: 1 },
+            { q: "Mi volt a cédrusokról elnevezett kerti lak neve?", options: ["Glogova", "Libanon", "Haláp", "Bábaszék"], answer: 1 },
+            { q: "Miből készült el az esernyő új nyele Huszák ékszerésznél?", options: ["Aranyból", "Ezüstből", "Rézből", "Csontból"], answer: 1 },
+            { q: "Ki Adameczné beteg unokája?", options: ["Matykó", "Jancsi", "Gyuri", "Peti"], answer: 0 },
+            { q: "Mit dob el Veronka a mezőre, amikor megtudja a feltételezett igazságot?", options: ["A fülbevalóját", "A gyűrűt", "Az esernyőt", "A kendőjét"], answer: 1 },
+            { q: "Milyen eseménnyel zárul a regény regényes története?", options: ["Temetéssel", "Párbajjal", "Lakodalommal", "Elutazással"], answer: 2 }
+        ],
+        halado: [
+            { q: "Melyik két gazda viszi el a búzaeladáskor Veronkát Glogovára?", options: ["Billeghi Máté és Koczka Ferenc", "Gongoly Mihály és Srankó János", "Nagy Mihály és Mravucsán", "Sztolarik és Huszák"], answer: 0 },
+            { q: "Ki volt Haláp bírója Veronka elvitelekor?", options: ["Billeghi Máté", "Nagy Mihály", "Koczka Ferenc", "Mravucsán"], answer: 1 },
+            { q: "Melyik évben járt az író (Mikszáth) a régi Glogován a történet szerint?", options: ["1848-ban", "1867-ben", "1873-ban", "1895-ben"], answer: 2 },
+            { q: "Kinek a felesége fulladt a vízbe a történet elején?", options: ["Srankó Jánosé", "Gongoly Mihályé", "Billeghi Mátéé", "Mravucsáné"], answer: 1 },
+            { q: "Milyen feladatot vállalt Gregorics Pál az 1848-as szabadságharc idején?", options: ["Katonai parancsnok", "Kém", "Kórházi ápoló", "Toborzó tiszt"], answer: 1 },
+            { q: "Mennyi jutalmat ajánlott fel Gregorics a vízbe esett esernyőért?", options: ["10 forintot", "50 forintot", "100 forintot", "500 forintot"], answer: 2 },
+            { q: "Hány besztercebányai nőre hagyott 2000 forintot Gregorics a végrendeletében?", options: ["3 nőre", "5 nőre", "9 nőre", "12 nőre"], answer: 2 },
+            { q: "Mennyiért adja el Sztolarik a Libanon kerti lakot a kapzsi testvéreknek?", options: ["5 000 forintért", "15 000 forintért", "50 000 forintért", "100 000 forintért"], answer: 1 },
+            { q: "Mit találnak a testvérek a szétszedett kerti lakban lévő üstben?", options: ["Aranypénzt", "Ócskavasat", "Drágaköveket", "Semmit"], answer: 1 },
+            { q: "Mennyiért vette meg a 'fehér zsidó' a hasznavehetetlen tárgyakat a levéltár szerint?", options: ["1 forintért", "2 forintért", "5 forintért", "10 forintért"], answer: 1 },
+            { q: "Melyik két falu között veszett el a zsidó esernyője?", options: ["Haláp és Glogova", "Kobolnyik és Lehota", "Bábaszék és Beszterce", "Szeged és Glogova"], answer: 1 },
+            { q: "Ki adja meg a nyomot Gyurinak, hogy a zsidó Glogován tette az ernyőt a kislány fölé?", options: ["Egy kovács", "Egy fazekas", "Egy szekeres", "Egy kőműves"], answer: 1 },
+            { q: "Kinek a balesetet szenvedett hintójából hullik el a drága fülbevaló?", options: ["Wibra Annáéból", "Veronkáéból", "Czobor Máriáéból", "Gongolynééból"], answer: 1 },
+            { q: "Ki a bábaszéki polgármester, akinél vacsoráznak?", options: ["Mravucsán", "Sztolarik", "Huszák", "Gongoly"], answer: 0 },
+            { q: "Kinek a legendáját ismerik meg a Glogovára vezető úton a várfalról való leugrásról?", options: ["Bélyi Veronka", "Czobor Mária", "Wibra Anna", "Rozáli"], answer: 1 },
+            { q: "Hol találják meg a szerencsétlenül járt Bélyi Jánost az úton?", options: ["Egy fán", "Egy földhasadékban", "A folyóban", "A kocsijában"], answer: 1 },
+            { q: "Ki Gyuri gyámapja?", options: ["Sztolarik", "Mravucsán", "Huszák", "Bélyi János"], answer: 0 },
+            { q: "Mivel akarta Adameczné gyógyítani a beteg Matykót?", options: ["Szenteltvízzel", "Az esernyőnyél elizzított fadarabjával (üszökkel)", "Gyógyteával", "Ezüstporral"], answer: 1 },
+            { q: "Hogyan gyűjti össze Sztolarik a falu népét Veronka eltűnésekor?", options: ["Dobolással", "Félrevereti a harangot (tűzriadó)", "Kikiáltóval", "Puskadördüléssel"], answer: 1 },
+            { q: "Mit tesznek a mezővel, hogy megtalálják az eldobott gyűrűt?", options: ["Felgyújtják", "Lekaszáltatják", "Elárasztják vízzel", "Ugaron hagyják"], answer: 1 }
+        ],
+        mester: [
+            { q: "Miért nem értesítették Bélyi Jánost édesanyja haláláról Halápról?", options: ["Nem tudták a címét", "Nem értesítette senki a faluból", "Sértődöttségből", "A postakocsi elakadása miatt"], answer: 1 },
+            { q: "A tanító magyarázata szerint miért olyan egyforma képűek a gyerekek régi Glogován?", options: ["Mert mind rokonok", "Mert unatkozik aratáskor és végigjárja az asszonyokat", "A falusi víz hatása miatt", "Isten csodája miatt"], answer: 1 },
+            { q: "Mi volt a régi mondás, amit Bélyi iskolatársa mondott neki Glogovára érkezésekor?", options: ["Szegény ember vízzel főz", "Sovány nyáj, sovány pásztor. Ki kell állani.", "Lassan járj, tovább érsz", "Imádkozz és dolgozz"], answer: 1 },
+            { q: "Melyik szertartás során kelt fel a tetszhalott Srankó János?", options: ["Esküvőn", "Keresztelőn", "Saját temetésén", "Urvacsorán"], answer: 2 },
+            { q: "Miért gondolták a falusiak, hogy Gregorics Pál rossz ember?", options: ["Mert garzsíros volt", "Mert vörös hajú és szeplős volt", "Mert nem járt templomba", "Mert külföldiül beszélt"], answer: 1 },
+            { q: "Melyik városból való volt az a kilenc hölgy, akikre Gregorics pénzt hagyott?", options: ["Besztercebánya", "Selmecbánya", "Kassa", "Lőcse"], answer: 0 },
+            { q: "Mennyit kért a kőműves az információért, hogy be van falazva egy üst a kerti lakba?", options: ["50 forintot", "100 forintot", "250 forintot", "500 forintot"], answer: 2 },
+            { q: "Milyen fákról kapta a nevét a 'Libanon' kerti lak?", options: ["Tölgyfákról", "Fenyőfákról", "Libanoni cédrusokról", "Körtefákról"], answer: 2 },
+            { q: "Kinek a haldoklásakor hall Gyuri először az esernyő üreges nyeléről?", options: ["Gregorics Pál", "Besztercebánya polgármestere", "Srankó János", "Gongoly Mihály"], answer: 1 },
+            { q: "Ki volt a 'fehér zsidó' felesége?", options: ["Anna", "Rozáli", "Klára", "Erzse"], answer: 1 },
+            { q: "Milyen növényt ültetett a pásztorlegény Czobor Mária emlékére?", options: ["Rózsafát", "Liliomot", "Cédrust", "Körtefát"], answer: 0 },
+            { q: "Hány 'látomás-ördög' súgja a kétségbeesett Gyurinak, hogy 'Gyere csak, itt a semmi'?", options: ["Egy", "Kettő", "Három", "Négy"], answer: 2 },
+            { q: "Milyen ékszerész cserélte ki az esernyő nyelét ezüstre?", options: ["Huszák", "Sztolarik", "Mravucsán", "Koczka"], answer: 0 },
+            { q: "Mire hivatkozva nem fogadták el a besztercebányai hölgyek a 2000 forintos örökséget?", options: ["Kevésnek tartották", "A pletykák és a becsületük védelme miatt", "Mert nem ismerték Gregoricsot", "Mert már gazdagok voltak"], answer: 1 },
+            { q: "Mit gondoltak a falusiak az esernyőről, mielőtt megtudták volna mi az?", options: ["Varázspálca", "Kampós bot és szerszám", "Külföldi zászló", "Szent kálvária"], answer: 1 },
+            { q: "Miért nem tudott Gyuriért üzenni Anna, amikor Gregorics haldoklott?", options: ["Nem volt pénze", "Nem vette komolyan és a posta is zárva volt", "Gyuri elutazott külföldre", "A haragja miatt"], answer: 1 },
+            { q: "Mit kért Gyuri Bélyi Jánostól cserébe, amiért kihúzta a szakadékból?", options: ["Az esernyőt", "Azt, ami a papé és épp Gyuri kocsiján van (Veronkát)", "Száz aranyat", "Glogova támogatását"], answer: 1 },
+            { q: "Hol hallgatja ki Veronka Gyuri és Sztolarik beszélgetését?", options: ["A szobában elrejtőzve", "A beszélgetésüket kihallgatva az ajtó mögül", "A kertben", "A kocsiban"], answer: 1 },
+            { q: "Kinek a felesége ment oda a paphoz segíteni a kislány mellé?", options: ["Gongolyné", "Srankóné", "Adameczné", "Billeghiné"], answer: 2 },
+            { q: "Kiderült-e a regény zárlata szerint biztosan, hogy volt-e bankutalvány a nyélben?", options: ["Igen, megtalálták", "Nem, sosem derült ki", "Igen, Adameczné elégette", "Igen, a zsidó vette ki"], answer: 1 }
+        ]
+    };
+
+    const TOTAL_QUESTIONS = 10;
+    const levelPoints = { kezdo: 3, halado: 5, mester: 10 };
+    let levels = ["kezdo", "halado", "mester"];
+    let currentLevelIndex = 0;
+    let currentQuestion = null;
+    let score = 0;
+    let questionCounter = 0;
+    let correctAnswersCount = 0;
+    let correctStreak = 0;
+    let incorrectStreak = 0;
+    let answered = false;
+    let playerName = "Játékos";
+
+    function startGame() {
+        const input = document.getElementById('player-name').value.trim();
+        if (input !== "") playerName = input;
+
+        document.getElementById('player-tag').innerText = "👤 " + playerName;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('leaderboard-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+
+        initQuiz();
+    }
+
+    function initQuiz() {
+        score = 0;
+        questionCounter = 0;
+        correctAnswersCount = 0;
+        currentLevelIndex = 0;
+        correctStreak = 0;
+        incorrectStreak = 0;
+        loadQuestion();
+    }
+
+    function updateStats() {
+        document.getElementById('score').innerText = score;
+        document.getElementById('question-count').innerText = `${questionCounter} / ${TOTAL_QUESTIONS}`;
+
+        const badge = document.getElementById('level-badge');
+        const levelName = levels[currentLevelIndex];
+
+        badge.className = `badge badge-${levelName}`;
+        badge.innerText = levelName === "kezdo" ? "Kezdő (3p)" : levelName === "halado" ? "Haladó (5p)" : "Mester (10p)";
+    }
+
+    function loadQuestion() {
+        if (questionCounter >= TOTAL_QUESTIONS) {
+            endGame();
+            return;
+        }
+
+        questionCounter++;
+        answered = false;
+        document.getElementById('next-btn').style.display = 'none';
+
+        const feedback = document.getElementById('feedback');
+        feedback.className = 'feedback-box';
+        feedback.innerText = '';
+
+        updateStats();
+
+        const levelKey = levels[currentLevelIndex];
+        const questions = questionBank[levelKey];
+        const randomIndex = Math.floor(Math.random() * questions.length);
+        currentQuestion = questions[randomIndex];
+
+        document.getElementById('question').innerText = currentQuestion.q;
+
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+
+        currentQuestion.options.forEach((option, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = option;
+            btn.onclick = () => selectOption(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex, btnElement) {
+        if (answered) return;
+        answered = true;
+
+        const allButtons = document.querySelectorAll('.option-btn');
+        allButtons.forEach(btn => btn.disabled = true);
+
+        const feedback = document.getElementById('feedback');
+        const currentLevelKey = levels[currentLevelIndex];
+        const pointsAwarded = levelPoints[currentLevelKey];
+
+        if (selectedIndex === currentQuestion.answer) {
+            btnElement.classList.add('correct');
+            score += pointsAwarded;
+            correctAnswersCount++;
+            correctStreak++;
+            incorrectStreak = 0;
+
+            if (correctStreak === 3 && currentLevelIndex < levels.length - 1) {
+                currentLevelIndex++;
+                correctStreak = 0;
+                feedback.className = 'feedback-box show fb-info';
+                feedback.innerText = `✨ 3 HELYES VÁLASZ EGYMÁS UTÁN! Szintlépés: ${levels[currentLevelIndex].toUpperCase()}! (+${pointsAwarded} pont)`;
+            } else {
+                feedback.className = 'feedback-box show fb-success';
+                feedback.innerText = `🎯 Helyes válasz! (+${pointsAwarded} pont)`;
+            }
+        } else {
+            btnElement.classList.add('incorrect');
+            allButtons[currentQuestion.answer].classList.add('correct');
+
+            incorrectStreak++;
+            correctStreak = 0;
+
+            if (incorrectStreak === 2 && currentLevelIndex > 0) {
+                currentLevelIndex--;
+                incorrectStreak = 0;
+                feedback.className = 'feedback-box show fb-danger';
+                feedback.innerText = `⚡ 2 HIBÁS VÁLASZ EGYMÁS UTÁN! Visszalépés: ${levels[currentLevelIndex].toUpperCase()} szintre!`;
+            } else {
+                feedback.className = 'feedback-box show fb-danger';
+                feedback.innerText = '❌ Helytelen válasz!';
+            }
+        }
+
+        updateStats();
+
+        if (questionCounter >= TOTAL_QUESTIONS) {
+            document.getElementById('next-btn').innerText = 'Eredmények Megtekintése 🏁';
+        } else {
+            document.getElementById('next-btn').innerText = 'Következő kérdés ➔';
+        }
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        loadQuestion();
+    }
+
+    function endGame() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-stats-text').innerText = 
+            `Helyes válaszok: ${correctAnswersCount} / 10 | Záró szint: ${levels[currentLevelIndex].toUpperCase()}`;
+
+        saveScoreToLeaderboard();
+    }
+
+    function saveScoreToLeaderboard() {
+        let leaderboard = JSON.parse(localStorage.getItem('szent_peter_quiz_lb_10q')) || [];
+        let levelText = levels[currentLevelIndex].toUpperCase();
+
+        leaderboard.push({ name: playerName, score: score, level: levelText });
+        leaderboard.sort((a, b) => b.score - a.score);
+        leaderboard = leaderboard.slice(0, 10);
+
+        localStorage.setItem('szent_peter_quiz_lb_10q', JSON.stringify(leaderboard));
+    }
+
+    function showLeaderboard() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('leaderboard-screen').style.display = 'block';
+
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+
+        let leaderboard = JSON.parse(localStorage.getItem('szent_peter_quiz_lb_10q')) || [];
+
+        if (leaderboard.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #777;">Még nincs elmentett pontszám.</td></tr>';
+            return;
+        }
+
+        leaderboard.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${index + 1}.</strong></td>
+                <td>${entry.name}</td>
+                <td><small style="color: var(--burgundy);">${entry.level}</small></td>
+                <td><strong style="color: #2e7d32;">${entry.score}</strong> pt</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function clearLeaderboard() {
+        if (confirm("Biztosan törölni szeretnéd a ranglistát?")) {
+            localStorage.removeItem('szent_peter_quiz_lb_10q');
+            showLeaderboard();
+        }
+    }
+
+    function backToMenu() {
+        document.getElementById('start-screen').style.display = 'block';
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'none';
+        document.getElementById('leaderboard-screen').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
