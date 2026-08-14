@@ -1,1 +1,1 @@
-Alkalmazás A szent Péter esernyőjének gyakorlására# mikszathjatek
+Alkalmazás a Szent Péter esernyőjének gyakorlására# mikszathjatek
